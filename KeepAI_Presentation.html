@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOTA KeepAI — The Secure AI Stronghold</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Variables & Theme */
+    :root {
+      --bg-color: #09090b;
+      --card-bg: #121214;
+      --accent-color: #169C84;
+      --highlight-color: #1dbfa2;
+      --border-color: #27272a;
+      --text-color: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --warning-red: #ef4444;
+      
+      --font-outfit: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --slide-width: 1280px;
+      --slide-height: 720px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-outfit);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    /* 16:9 Aspect Ratio Container */
+    .presentation-container {
+      width: var(--slide-width);
+      height: var(--slide-height);
+      position: relative;
+      transform-origin: center center;
+      overflow: hidden;
+      background-color: var(--bg-color);
+    }
+
+    /* Individual Slides */
+    .slide {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3.5rem 4rem; /* 56px top/bottom, 64px left/right */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      transform: translateX(30px);
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .slide.exit-left {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-30px);
+    }
+
+    /* Header styling */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 3.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-img {
+      height: 1.8rem;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-divider {
+      width: 1px;
+      height: 1.2rem;
+      background-color: var(--border-color);
+    }
+
+    .tagline-mono {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--accent-color);
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .header-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      border: 1px solid var(--border-color);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Footer styling */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sec-tag {
+      background-color: rgba(22, 156, 132, 0.1);
+      color: var(--accent-color);
+      border: 1px solid rgba(22, 156, 132, 0.2);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .slide-index {
+      color: var(--accent-color);
+      font-weight: 700;
+    }
+
+    /* Body Layouts */
+    .slide-body {
+      flex-grow: 1;
+      display: flex;
+      gap: 3rem;
+      align-items: center;
+      padding: 2rem 0;
+      overflow: hidden;
+    }
+
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3rem;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    .split-layout-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.25rem;
+      height: 100%;
+    }
+
+    .visual-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Heading Styling */
+    .slide-tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-color);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .slide-tag::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent-color);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 2.85rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--text-color);
+    }
+
+    h1 span {
+      color: var(--accent-color);
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--text-color);
+    }
+
+    h3 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    p.highlight-text {
+      color: var(--text-color);
+      font-size: 1.15rem;
+      font-weight: 400;
+      border-left: 2px solid var(--accent-color);
+      padding-left: 1rem;
+    }
+
+    /* Premium Containers */
+    .container-base {
+      border: 1px solid var(--border-color);
+      border-radius: 2.5rem; /* 40px */
+      background-color: var(--card-bg);
+      padding: 2rem;
+      width: 100%;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container-base:hover {
+      border-color: var(--accent-color);
+    }
+
+    /* List styling */
+    ul.bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    ul.bullet-list li {
+      position: relative;
+      padding-left: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    ul.bullet-list li::before {
+      content: "▪";
+      position: absolute;
+      left: 0;
+      color: var(--accent-color);
+      font-size: 0.9rem;
+      top: -0.05rem;
+    }
+
+    ul.bullet-list li strong {
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    /* Grid Layouts inside slides */
+    .stack-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .card-small {
+      border: 1px solid var(--border-color);
+      border-radius: 1.5rem;
+      background-color: var(--card-bg);
+      padding: 1.25rem 1.75rem;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .card-small:hover {
+      border-color: var(--accent-color);
+      background-color: rgba(22, 156, 132, 0.02);
+    }
+
+    .card-small .num-prefix {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-color);
+      font-weight: 700;
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 1.25rem;
+      width: 100%;
+      height: 100%;
+    }
+
+    .grid-3-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Browser Mockup Frame */
+    .window-mockup {
+      width: 100%;
+      height: 100%;
+      max-height: 380px;
+      border: 1px solid var(--border-color);
+      border-radius: 1.5rem;
+      overflow: hidden;
+      background-color: #0d0d0f;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      transition: border-color 0.3s ease;
+    }
+
+    .window-mockup:hover {
+      border-color: var(--accent-color);
+    }
+
+    .window-header {
+      height: 2.25rem;
+      background-color: #151518;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .window-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background-color: var(--border-color);
+    }
+
+    .window-dot:nth-child(1) { background-color: rgba(239, 68, 68, 0.4); }
+    .window-dot:nth-child(2) { background-color: rgba(245, 158, 11, 0.4); }
+    .window-dot:nth-child(3) { background-color: rgba(16, 185, 129, 0.4); }
+
+    .window-address {
+      flex-grow: 1;
+      max-width: 380px;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      height: 1.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      margin-left: 1rem;
+    }
+
+    .window-body {
+      flex-grow: 1;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--bg-color);
+    }
+
+    .window-body img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    /* Warning Card Specifics */
+    .warning-panel {
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      background-color: rgba(239, 68, 68, 0.02);
+      border-radius: 2rem;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    .warning-panel .alert-tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--warning-red);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .warning-panel .alert-tag::before {
+      content: "▲";
+      font-size: 0.7rem;
+    }
+
+    .warning-panel p {
+      font-size: 0.95rem;
+      color: #e4e4e7;
+    }
+
+    /* Tech Stack Diagram Styling */
+    .tech-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+    }
+
+    .diagram-step {
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .diagram-step:hover {
+      border-color: var(--accent-color);
+      background-color: rgba(22, 156, 132, 0.01);
+    }
+
+    .diagram-step .step-label {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent-color);
+      font-weight: 700;
+      background: rgba(22, 156, 132, 0.1);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(22, 156, 132, 0.15);
+    }
+
+    .diagram-step .step-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-color);
+    }
+
+    .diagram-step .step-tech {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* ROI Metric Cards styling */
+    .metric-card {
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      border-radius: 2rem;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .metric-card:hover {
+      border-color: var(--accent-color);
+      transform: translateY(-4px);
+    }
+
+    .metric-number {
+      font-size: 3.25rem;
+      font-weight: 800;
+      color: var(--accent-color);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-title {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-color);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .metric-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Interactive UI Controls Overlays (Hidden during Print) */
+    .controls-overlay {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background-color: rgba(9, 9, 11, 0.9);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+
+    .control-btn:hover:not(:disabled) {
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+      background-color: rgba(22, 156, 132, 0.1);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+
+    .dots-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .dot.active {
+      background-color: var(--accent-color);
+      width: 1.25rem;
+      border-radius: 4px;
+    }
+
+    /* Print styling rules */
+    @media print {
+      @page {
+        size: 1280px 720px;
+        margin: 0;
+      }
+      body {
+        overflow: visible;
+        width: auto;
+        height: auto;
+        display: block;
+        background-color: var(--bg-color) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .presentation-container {
+        transform: none !important;
+        width: 100% !important;
+        height: auto !important;
+        position: static !important;
+      }
+      .slide {
+        position: relative !important;
+        display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        width: 1280px !important;
+        height: 720px !important;
+        margin: 0 auto !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .controls-overlay {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Presentation Viewport Container -->
+  <div class="presentation-container">
+
+    <!-- SLIDE 1: Title Slide -->
+    <div class="slide" id="slide-1">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">PROP-SYSTEM // CORE</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">SYSTEM PLATFORM</div>
+            <h1>The Secure AI Stronghold for <span>Corporate Knowledge</span></h1>
+            <p class="highlight-text">
+              An elite, self-hosted RAG platform built for private, offline intelligence. Upload your procedures, reports, and manuals once. Get instant conversational answers with zero data leaving your server.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>Absolute Data Sovereignty:</strong> Operational data never touches the web.</li>
+              <li><strong>Zero-Hallucination Guardrails:</strong> Strictly bound to verified uploads.</li>
+              <li><strong>Direct Efficiency Driver:</strong> Reducing search time from hours to seconds.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="container-base" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.5rem; border-color: rgba(22, 156, 132, 0.2);">
+              <img src="./KeepAI_Logo.png" alt="KeepAI" style="width: 60%; max-width: 250px; height: auto; object-fit: contain;">
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; text-align: center; color: var(--text-dim); border-top: 1px solid var(--border-color); padding-top: 1.25rem; width: 100%; display: flex; justify-content: space-around;">
+                <span>[ STATUS: SECURE ]</span>
+                <span>[ NETWORK: OFFLINE ]</span>
+                <span>[ DB: LOCAL_VECTORS ]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">01 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: The Corporate Knowledge Crisis -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">PROBLEM ANALYSIS // 01</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">THE PROBLEM</div>
+            <h1>The Corporate <span>Knowledge Crisis</span></h1>
+            <p>
+              Your organization already possesses all the technical knowledge it needs. The core issue is that this invaluable knowledge remains buried inside thousands of complex PDFs, Word documents, handover files, and manuals.
+            </p>
+            <p class="highlight-text" style="border-left-color: var(--accent-color);">
+              The knowledge is invisible. When critical decisions are required on night watches or during maintenance outages, searching for answers leads to massive friction and downtime.
+            </p>
+          </div>
+          
+          <div class="visual-area">
+            <div class="stack-cards">
+              <div class="card-small">
+                <span class="num-prefix">01 // INFORMATION SILOS</span>
+                <h3>Invisible Archives</h3>
+                <p style="font-size: 0.85rem;">Critical data is scattered across shared drives, handover folders, and static 300-page manuals.</p>
+              </div>
+              <div class="card-small">
+                <span class="num-prefix">02 // SEARCH FRICTION</span>
+                <h3>Waste of Human Capital</h3>
+                <p style="font-size: 0.85rem;">Personnel waste up to 20 minutes reading document directories just to find one operational answer.</p>
+              </div>
+              <div class="card-small">
+                <span class="num-prefix">03 // OPERATIONAL RISK</span>
+                <h3>Errors and Misunderstandings</h3>
+                <p style="font-size: 0.85rem;">When manual searching is too slow, crew members rely on guesswork, risking safety incidents.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">02 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: The Cloud Security Paradox -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">RISK ASSESSMENT // 02</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout-equal">
+          <div class="content-area">
+            <div class="slide-tag">SECURITY PARADOX</div>
+            <h1>The Threat of <span>Public Cloud RAG</span></h1>
+            <p>
+              While businesses are eager to adopt Retrieval-Augmented Generation (RAG) to improve decision-making and productivity, standard solutions depend on the public cloud.
+            </p>
+            
+            <div class="warning-panel">
+              <span class="alert-tag">Security Risk Warning</span>
+              <p>
+                Pasting private compliance files, HSE reports, and mechanical drawings into external AI models (like ChatGPT or Claude API) creates a critical risk of data leaks and strict regulatory compliance violations.
+              </p>
+            </div>
+          </div>
+          
+          <div class="content-area">
+            <div class="stack-cards">
+              <div class="card-small" style="border-color: rgba(239, 68, 68, 0.2);">
+                <span class="num-prefix" style="color: var(--warning-red);">01 // COMPLIANCE EXPOSURE</span>
+                <h3>Compliance Violations</h3>
+                <p style="font-size: 0.85rem;">Uploading corporate operational procedures violates safety standards, ISM requirements, and internal IP guidelines.</p>
+              </div>
+              <div class="card-small">
+                <span class="num-prefix">02 // INTEGRATION BLOCKS</span>
+                <h3>Complex Deployments</h3>
+                <p style="font-size: 0.85rem;">Offshore vessels and secure facilities cannot establish stable, low-latency connections to external cloud models.</p>
+              </div>
+              <div class="card-small">
+                <span class="num-prefix">03 // SCALING COST BARRIERS</span>
+                <h3>Unpredictable Bills</h3>
+                <p style="font-size: 0.85rem;">Standard systems charge per-token fees, resulting in soaring, unpredictable API costs as usage scales fleet-wide.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">03 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Introducing SOTA KeepAI -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">PRODUCT ARCHITECTURE // 03</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">THE ARCHITECTURAL SHIELD</div>
+            <h1>Introducing <span>SOTA KeepAI</span></h1>
+            <p>
+              SOTA KeepAI is a self-hosted, offline AI knowledge assistant. Designed as an elite local RAG application, it functions entirely behind your secure firewall on local vessel hardware or server PCs.
+            </p>
+            <p class="highlight-text">
+              We designed KeepAI to align directly with three operational pillars: absolute data sovereignty, high-accuracy math guardrails, and measurable efficiency.
+            </p>
+          </div>
+          
+          <div class="visual-area">
+            <div class="stack-cards" style="gap: 0.85rem;">
+              <div class="card-small" style="padding: 1.15rem 1.5rem;">
+                <span class="num-prefix">KEEP // SECURITY</span>
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">Absolute Data Sovereignty</h3>
+                <p style="font-size: 0.8rem;">Local execution ensures proprietary files never leave the machine. Zero cloud dependency means zero leak risk.</p>
+              </div>
+              <div class="card-small" style="padding: 1.15rem 1.5rem;">
+                <span class="num-prefix">AI // TRUST</span>
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">Zero-Hallucination Guardrails</h3>
+                <p style="font-size: 0.8rem;">Mathematically bound to answer only using your uploaded documents. If the answer is not in the text, it says so.</p>
+              </div>
+              <div class="card-small" style="padding: 1.15rem 1.5rem;">
+                <span class="num-prefix">KPI // PERFORMANCE</span>
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">Direct Efficiency Gains</h3>
+                <p style="font-size: 0.8rem;">Search times plunge from hours of reading to a three-second local chat, directly driving team performance KPIs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">04 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: How KeepAI Works: The Chat -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">USER INTERACTION // 04</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">CONVERSATIONAL INTERFACE</div>
+            <h1>Natural Language <span>Chat Interface</span></h1>
+            <p>
+              Users interact with KeepAI just like they would chat with a senior engineer or supervisor. They ask natural questions in plain language and get instant, technical responses.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>Natural Input:</strong> Enter questions like <em>"Where can I find information about permit to work?"</em></li>
+              <li><strong>Intuitive Design:</strong> High-performance dark-theme UI designed to avoid eye strain during night watches.</li>
+              <li><strong>Zero Operational Lag:</strong> Returns comprehensive responses in seconds.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="window-mockup">
+              <div class="window-header">
+                <div class="window-dots">
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                </div>
+                <div class="window-address">https://keepai.local/chat</div>
+              </div>
+              <div class="window-body">
+                <img src="./Screenshots/chat2.JPG" alt="KeepAI Chat Interface Screenshot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">05 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Trust & Verification Engine -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">DATA VERIFICATION // 05</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">TRUST ENGINE</div>
+            <h1>Auditability and <span>Exact Citations</span></h1>
+            <p>
+              Trust is the absolute core of technical operations. SOTA KeepAI does not invent answers or guess procedures.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>RAG Guardrails:</strong> The local model is strictly constrained to extract information only from your verified document uploads.</li>
+              <li><strong>Exact References:</strong> Every single answer provides the exact document name, page, and chunk/section citation.</li>
+              <li><strong>Verify Instantly:</strong> Users can inspect the exact source text immediately to guarantee compliance with safety procedures.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="window-mockup">
+              <div class="window-header">
+                <div class="window-dots">
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                </div>
+                <div class="window-address">https://keepai.local/chat-citations</div>
+              </div>
+              <div class="window-body">
+                <img src="./Screenshots/chat1.JPG" alt="KeepAI Citations Interface Screenshot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">06 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Built for Complex Operations -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">ORGANISATION // 06</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">COMPLEX OPERATIONS</div>
+            <h1>Organized for <span>High-Reliability Crews</span></h1>
+            <p>
+              Industrial operations require structured information, not just a plain list of files. KeepAI indexes files with clear context mapping.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>Department-Based Segregation:</strong> Organize documents into dedicated spaces (General, Deck, Engine, Electrical, HSE, Store). User queries can be targeted to specific departments to avoid irrelevant results.</li>
+              <li><strong>Equipment Machinery Tagging:</strong> Link manuals directly to specific vessel machinery for immediate troubleshooting.</li>
+              <li><strong>Multi-Format Engine:</strong> Processes PDF, Word documents, Excel spreadsheets, and Markdown files automatically.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="window-mockup">
+              <div class="window-header">
+                <div class="window-dots">
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                </div>
+                <div class="window-address">https://keepai.local/documents</div>
+              </div>
+              <div class="window-body">
+                <img src="./Screenshots/Documents.JPG" alt="KeepAI Document Library Screenshot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">07 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Configurable Intelligence -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">SYSTEM PARAMETERS // 07</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">CONFIGURABLE INTELLIGENCE</div>
+            <h1>Granular Settings &amp; <span>Retrieval Control</span></h1>
+            <p>
+              KeepAI provides administrators with precise knobs to adjust how the LLM and RAG engine extract and synthesize answers.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>Quality &amp; Depth Slider:</strong> Toggle retrieval from fast, concise answers to deep, thorough document sweeps.</li>
+              <li><strong>System Prompt Control:</strong> Build customized templates for specific collections (e.g. checklists for procedures vs. timelines for incidents).</li>
+              <li><strong>Semantic Cache:</strong> Answers repeated questions instantly from the local cache to reduce CPU load.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="window-mockup">
+              <div class="window-header">
+                <div class="window-dots">
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                  <div class="window-dot"></div>
+                </div>
+                <div class="window-address">https://keepai.local/settings-retrieval</div>
+              </div>
+              <div class="window-body">
+                <img src="./Screenshots/Retrival_settings.JPG" alt="KeepAI Retrieval Settings Screenshot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">08 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: Power Admin & Maintenance -->
+    <div class="slide" id="slide-9">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">MAINTENANCE PANEL // 08</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">ADMIN CONTROLS</div>
+            <h1>Monitoring &amp; <span>Vector DB Health</span></h1>
+            <p>
+              IT administrators have access to robust tools to maintain system health, monitor hardware usage, and ensure database reliability.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>Monitoring Dashboard:</strong> Tracks real-time CPU/RAM utilization, queue latency, and database footprint.</li>
+              <li><strong>Vector Database Maintenance:</strong> Built-in cleanup options scan for and remove orphaned chunks to free storage space.</li>
+              <li><strong>Snapshot Backups:</strong> Simple, one-click offline backups to save system configuration and files for rapid recovery.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area" style="display: flex; gap: 1rem; width: 100%;">
+            <div class="window-mockup" style="flex: 1; max-height: 380px;">
+              <div class="window-header">
+                <div class="window-dots"><div class="window-dot"></div><div class="window-dot"></div><div class="window-dot"></div></div>
+                <div class="window-address">https://keepai.local/dashboard</div>
+              </div>
+              <div class="window-body">
+                <img src="./Screenshots/Monitoring_Dashboard.JPG" alt="KeepAI Monitoring Dashboard" style="object-position: center center;">
+              </div>
+            </div>
+            
+            <div class="window-mockup" style="flex: 1; max-height: 380px;">
+              <div class="window-header">
+                <div class="window-dots"><div class="window-dot"></div><div class="window-dot"></div><div class="window-dot"></div></div>
+                <div class="window-address">https://keepai.local/maintenance</div>
+              </div>
+              <div class="window-body">
+                <img src="./Screenshots/System_maintenance.JPG" alt="KeepAI System Maintenance" style="object-position: center center;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">09 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Seamless Local Deployment -->
+    <div class="slide" id="slide-10">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">DEPLOYMENT ENGINE // 09</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">INFRASTRUCTURE</div>
+            <h1>Fully Offline <span>Local Stack</span></h1>
+            <p>
+              KeepAI is packaged in a production-ready container stack, deployable in less than one hour using standard Docker tools.
+            </p>
+            <p class="highlight-text" style="font-size: 1rem;">
+              No internet connection required. Runs perfectly on standard shipboard servers or PC hardware. Zero cloud dependencies, zero external licensing requirements.
+            </p>
+            <ul class="bullet-list" style="gap: 0.5rem;">
+              <li><strong>Zero GPU Requirements:</strong> High-precision CPU-optimized inference.</li>
+              <li><strong>Zero Lock-In:</strong> Open containers running local services.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="tech-diagram">
+              <div class="diagram-step">
+                <span class="step-label">01 // UI LAYER</span>
+                <span class="step-title">React Web Client</span>
+                <span class="step-tech">Local Network</span>
+              </div>
+              <div class="diagram-step">
+                <span class="step-label">02 // API CONTROLLER</span>
+                <span class="step-title">FastAPI Backend</span>
+                <span class="step-tech">Python Stack</span>
+              </div>
+              <div class="diagram-step">
+                <span class="step-label">03 // PARSING WORKER</span>
+                <span class="step-title">Document parser</span>
+                <span class="step-tech">Background Pipeline</span>
+              </div>
+              <div class="diagram-step" style="border-color: var(--accent-color);">
+                <span class="step-label" style="background-color: var(--accent-color); color: #fff;">04 // LLM ENGINE</span>
+                <span class="step-title" style="color: var(--accent-color);">Ollama Local Inference</span>
+                <span class="step-tech">CPU execution</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">10 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: The Value Proposition (ROI) -->
+    <div class="slide" id="slide-11">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">KPI IMPACT // 10</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">VALUE PROPOSITION</div>
+            <h1>Measurable <span>Efficiency &amp; Safety ROI</span></h1>
+            <p>
+              KeepAI transforms static document archives into an active, conversational, safety-critical resource for your crew and office teams.
+            </p>
+            <ul class="bullet-list">
+              <li><strong>Direct Efficiency Gains:</strong> Compresses frustrating policy digging into a three-second local chat.</li>
+              <li><strong>Operational Safety ROI:</strong> Reduces risk of accidents by ensuring crews always act on official, verified procedures rather than memory.</li>
+              <li><strong>Accelerated Onboarding:</strong> Onboard new engineers immediately. System provides instant document mapping without disturbing senior crew.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="grid-3-columns">
+              <div class="metric-card">
+                <div class="metric-number">3s</div>
+                <div class="metric-title">Speed</div>
+                <p class="metric-desc">Average search time. Crash from 20 minutes to seconds.</p>
+              </div>
+              
+              <div class="metric-card" style="border-color: var(--accent-color);">
+                <div class="metric-number">0B</div>
+                <div class="metric-title">Data Leak</div>
+                <p class="metric-desc">All files stay behind your firewall. Absolute security.</p>
+              </div>
+              
+              <div class="metric-card">
+                <div class="metric-number">$0</div>
+                <div class="metric-title">API Bills</div>
+                <p class="metric-desc">Local execution means zero scaling and usage bills.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">11 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: Next Steps -->
+    <div class="slide" id="slide-12">
+      <div class="slide-header">
+        <div class="logo-group">
+          <img src="./KeepAI_Logo.png" alt="KeepAI Logo" class="logo-img">
+          <div class="logo-divider"></div>
+          <div class="tagline-mono">SOTA KeepAI</div>
+        </div>
+        <div class="header-tag">GETTING STARTED // 11</div>
+      </div>
+      
+      <div class="slide-body">
+        <div class="split-layout">
+          <div class="content-area">
+            <div class="slide-tag">NEXT STEPS</div>
+            <h1>Stop Searching.<br><span>Start Knowing.</span></h1>
+            <p class="highlight-text" style="font-size: 1.15rem;">
+              You own the system completely. No vendor lock-in. No cloud database fees. Pure local intelligence.
+            </p>
+            <p>
+              We are ready to deploy a local pilot system using a sample of your actual technical manuals and procedures to prove speed, safety, and citation accuracy.
+            </p>
+            <ul class="bullet-list" style="margin-top: 0.5rem;">
+              <li><strong>Zero-Risk Pilot:</strong> Fully operational within 2 hours.</li>
+              <li><strong>Live Onboard Trial:</strong> Test offline capability immediately.</li>
+            </ul>
+          </div>
+          
+          <div class="visual-area">
+            <div class="container-base" style="padding: 2.5rem; border-color: var(--accent-color); display: flex; flex-direction: column; gap: 1.5rem;">
+              <img src="./KeepAI_Logo.png" alt="KeepAI Logo" style="width: 50%; max-width: 180px; height: auto; object-fit: contain;">
+              <div style="font-family: var(--font-mono); font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-dim);">SYSTEM:</span> <span>SOTA KeepAI</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-dim);">DEPLOYMENT:</span> <span>On-Prem / Docker Compose</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-dim);">LOCAL PORTAL:</span> <span style="color: var(--accent-color);">keepai.local</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-dim);">DEVELOPED BY:</span> <span>Aleksandr Rodionov</span></div>
+				<div style="display: flex; justify-content: space-between;"><span style="color: var(--text-dim);">EMAIL:</span> <span>SOTA.it.development@gmail.com</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="footer-left">
+          <span>SECURE KNOWLEDGE SYSTEM</span>
+          <span class="sec-badge sec-tag">CONFIDENTIAL</span>
+        </div>
+        <div class="footer-right">
+          <span>SOTA KEEP_AI PRESENTATION</span>
+          <span class="slide-index">12 / 12</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Interactive controls overlay -->
+  <div class="controls-overlay">
+    <button class="control-btn" id="prev-btn" title="Previous Slide (Left Arrow, Backspace)">&lt;</button>
+    <div class="dots-container" id="dots-container">
+      <!-- Dots injected dynamically -->
+    </div>
+    <button class="control-btn" id="next-btn" title="Next Slide (Right Arrow, Space, Enter)">&gt;</button>
+    <button class="control-btn" id="print-btn" title="Print Presentation to PDF" style="width: auto; padding: 0 0.75rem; border-radius: 1rem;">PDF</button>
+  </div>
+
+  <script>
+    // Scale Viewport dynamically to preserve 16:9 1280x720 aspect ratio
+    function resizePresentation() {
+      const container = document.querySelector('.presentation-container');
+      const targetWidth = 1280;
+      const targetHeight = 720;
+      
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      
+      // Compute scaling factors
+      const scaleX = windowWidth / targetWidth;
+      const scaleY = windowHeight / targetHeight;
+      
+      // Choose min scale factor to contain inside viewport (with 4% safety margin)
+      const scale = Math.min(scaleX, scaleY) * 0.96;
+      
+      container.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener('resize', resizePresentation);
+    window.addEventListener('load', resizePresentation);
+
+    // Slide Switching Logic
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const printBtn = document.getElementById('print-btn');
+    const dotsContainer = document.getElementById('dots-container');
+
+    // Create Navigation Dots
+    slides.forEach((_, index) => {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if (index === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => showSlide(index));
+      dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function showSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active', 'exit-left');
+        if (i < index) {
+          slide.classList.add('exit-left');
+        }
+      });
+      
+      slides[index].classList.add('active');
+      
+      // Update Dots
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+      
+      // Update Buttons
+      prevBtn.disabled = (index === 0);
+      nextBtn.disabled = (index === slides.length - 1);
+      
+      currentSlide = index;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    // Connect Controls
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+        prevSlide();
+      }
+    });
+
+    // Initialize first slide
+    showSlide(0);
+  </script>
+</body>
+</html>
